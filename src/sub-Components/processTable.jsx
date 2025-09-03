@@ -31,6 +31,7 @@ import ProcessProgressTrain from "./ProcessProgressTrain";
 import ProcessTrainModals from "./ProcessTrainModals ";
 import QcScreen from "./../pages/QCProcess/Qcscreen";
 import MSS from "./../pages/MssProcess/Mss";
+import TTF from "../pages/TTF/TTF";
 
 const ProcessTable = () => {
   const { encryptedProjectId } = useParams();
@@ -115,6 +116,7 @@ const ProcessTable = () => {
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedProcessId, setSelectedProcessId] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showTTF, setShowTTF] = useState(false)
 
   useEffect(() => {
     setModalVisible(false);
@@ -173,6 +175,7 @@ const ProcessTable = () => {
     const selectedProcess = processes.find((p) => p.processId === value);
 
     if (selectedProcess) {
+      setShowTTF(false); //Hide TTF page when process changes
       setProcess(selectedProcess.processId, selectedProcess.processName, true);
       setIsLoading(true);
       try {
@@ -994,6 +997,7 @@ const ProcessTable = () => {
                         initialProcessId={processId}
                         onProcessChange={handleProcessChange}
                         customDark={customDark}
+                        onTransfer={() => setShowTTF(true)}
                       />
                     </Col>
                   </Row>
@@ -1039,67 +1043,77 @@ const ProcessTable = () => {
         </Row>
       )}
 
-      {processName === "Dispatch" ? (
-        <DispatchPage
-          projectId={selectedProject?.value || id}
-          processId={processId}
-          lotNo={selectedLot}
-          projectName={projectName}
-        />
-      ) : processName === "QC" ? (
-        <QcScreen
-          projectId={selectedProject?.value || id}
-          processId={processId}
-          lotNo={selectedLot}
-          projectName={projectName}
-        />
-      ) : processName === "MSS" ? (
-        <MSS
-          projectId={selectedProject?.value || id}
-          processId={processId}
-          lotNo={selectedLot}
-          projectName={projectName}
-        />
-      ) : (
-        <>
-          {modalVisible ? (
-            <div className="">
-              <ProcessTrainModals
-                ProjectID={selectedProject?.value || id}
-                lotNumber={selectedLot}
-                ProcessID={selectedProcessId}
-                status={selectedStatus}
-                setModalVisible={setModalVisible}
-              />
-            </div>
-          ) : (
-            <Row className="mb-2 mt-1">
-              <Col lg={12} md={12} className="">
-                {tableData?.length > 0 && (
-                  <ProjectDetailsTable
-                    tableData={combinedTableData}
-                    fetchTransactions={fetchTransactions}
-                    setTableData={setTableData}
-                    projectId={selectedProject?.value || id}
-                    lotNo={selectedLot}
-                    featureData={featureData}
-                    hasFeaturePermission={hasFeaturePermission}
-                    processId={processId}
-                    projectLots={projectLots}
-                    handleLotClick={handleLotClick}
-                    setShowBarChart={setShowBarChart}
-                    showBarChart={showBarChart}
-                    setShowPieChart={setShowPieChart}
-                    showPieChart={showPieChart}
-                    data={combinedTableData} 
-                    catchNumbers={catchNumbers}
-                  />
-                )}
-              </Col>
-            </Row>
-          )}
-        </>
-      )}
+      {
+        showTTF ? (
+          <TTF
+            projectId={selectedProject?.value || id}
+            processId={processId}
+            lotNo={selectedLot}
+            projectName={projectName}
+            onClose={() => setShowTTF(false)}
+          />
+        ) : processName === "Dispatch" ? (
+          <DispatchPage
+            projectId={selectedProject?.value || id}
+            processId={processId}
+            lotNo={selectedLot}
+            projectName={projectName}
+          />
+        ) : processName === "QC" ? (
+          <QcScreen
+            projectId={selectedProject?.value || id}
+            processId={processId}
+            lotNo={selectedLot}
+            projectName={projectName}
+          />
+        ) : processName === "MSS" ? (
+          <MSS
+            projectId={selectedProject?.value || id}
+            processId={processId}
+            lotNo={selectedLot}
+            projectName={projectName}
+          />
+        ) : (
+          <>
+            {modalVisible ? (
+              <div className="">
+                <ProcessTrainModals
+                  ProjectID={selectedProject?.value || id}
+                  lotNumber={selectedLot}
+                  ProcessID={selectedProcessId}
+                  status={selectedStatus}
+                  setModalVisible={setModalVisible}
+                />
+              </div>
+            ) : (
+              <Row className="mb-2 mt-1">
+                <Col lg={12} md={12} className="">
+                  {tableData?.length > 0 && (
+                    <ProjectDetailsTable
+                      tableData={combinedTableData}
+                      fetchTransactions={fetchTransactions}
+                      setTableData={setTableData}
+                      projectId={selectedProject?.value || id}
+                      lotNo={selectedLot}
+                      featureData={featureData}
+                      hasFeaturePermission={hasFeaturePermission}
+                      processId={processId}
+                      projectLots={projectLots}
+                      handleLotClick={handleLotClick}
+                      setShowBarChart={setShowBarChart}
+                      showBarChart={showBarChart}
+                      setShowPieChart={setShowPieChart}
+                      showPieChart={showPieChart}
+                      data={combinedTableData}
+                      catchNumbers={catchNumbers}
+                    />
+                  )}
+                </Col>
+              </Row>
+            )}
+          </>
+        )
+      }
 
       <CatchDetailModal
         show={catchDetailModalShow}
